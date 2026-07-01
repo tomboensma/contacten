@@ -1,7 +1,9 @@
 
 const db={
 types:[{id:1,n:"Gemeente"},{id:2,n:"Jeugdbescherming"},{id:3,n:"Veilig Thuis"},{id:4,n:"GGD"},{id:5,n:"Politie"},{id:6,n:"Onderwijs"}],
-orgs:[{id:1,t:1,n:"Almelo"},{id:2,t:1,n:"Hengelo"},{id:3,t:1,n:"Tubbergen"},{id:4,t:2,n:"JBOV"},{id:5,t:2,n:"Leger des Heils"},{id:6,t:3,n:"Veilig Thuis Twente"}],
+orgs:[
+{id:1,t:1,n:"Almelo"},{id:2,t:1,n:"Hengelo"},{id:3,t:1,n:"Tubbergen"},{id:7,t:1,n:"Enschede"},{id:8,t:1,n:"Borne"},{id:9,t:1,n:"Oldenzaal"},{id:10,t:1,n:"Losser"},{id:11,t:1,n:"Dinkelland"},{id:12,t:1,n:"Twenterand"},{id:13,t:1,n:"Wierden"},{id:14,t:1,n:"Rijssen-Holten"},{id:15,t:1,n:"Hellendoorn"},{id:16,t:1,n:"Hof van Twente"},{id:17,t:1,n:"Haaksbergen"},{id:18,t:1,n:"Berkelland"},{id:19,t:1,n:"Lochem"},{id:20,t:1,n:"Aalten"},
+{id:4,t:2,n:"JBOV"},{id:5,t:2,n:"Leger des Heils"},{id:6,t:3,n:"Veilig Thuis Twente"}],
 contacts:[{id:1,o:1,n:"Jan Jansen",f:"Jeugdconsulent",m:"06-12345678",tel:"0546-123456",e:"jan.jansen@almelo.nl",op:"Werkt ma-do",mo:[1]},{id:2,o:1,n:"Harry Nak",f:"Contractmanager",m:"0612457896",tel:"",e:"",op:"di-do",mo:[1]},{id:3,o:4,n:"Nico de Groot",f:"Jeugdbeschermer",m:"06-12365478",tel:"",e:"",op:"Alleen mailen",mo:[1]},{id:4,o:6,n:"Petra de Vries",f:"Adviseur",m:"06-87654321",tel:"",e:"petra@example.nl",op:"",mo:[2]}],
 mothers:[{id:1,n:"Maria Jansen",op:"Voorkeur telefonisch contact.",a:1,k:[1,2]},{id:2,n:"Anne de Vries",op:"Eerst via contactpersoon afstemmen.",a:1,k:[3]},{id:3,n:"Karin Bakker",op:"",a:1,k:[5,6,7]},{id:4,n:"Moeder Oud",op:"Niet meer actief.",a:0,k:[4]}],
 kids:[{id:1,n:"Lisa Jansen",mo:1},{id:2,n:"Milan Jansen",mo:1},{id:3,n:"Saar de Vries",mo:2},{id:4,n:"Oud Kind",mo:4},{id:5,n:"Emma Bakker",mo:3},{id:6,n:"Julia Bakker",mo:3},{id:7,n:"Noah Bakker",mo:3}]
@@ -21,7 +23,30 @@ function globalSearch(value){let q=value.trim().toLowerCase(),host=document.getE
 function clearGlobalSearch(){let i=document.getElementById('globalInput');if(i)i.value='';document.getElementById('globalHost').innerHTML=''}
 function mothersPage(){let q=st.motherQ.toLowerCase(),rows=db.mothers.filter(m=>m.a&&(!q||m.n.toLowerCase().includes(q)));return `<div class="toolbar"><h2>Moeders</h2></div><div class="filter" style="max-width:560px;margin-bottom:18px"><label>Zoeken</label><input value="${esc(st.motherQ)}" oninput="st.motherQ=this.value;renderPage()" placeholder="Zoek moeder..."></div><div class="grid-cards">${rows.map(m=>`<button class="type-card" onclick="navTo('mother',${m.id})"><strong>${m.n}</strong><span>Actief</span></button>`).join("")}</div><div class="section-actions"><button class="btn primary" onclick="openDrawer('mother')">Nieuwe moeder</button></div>`}
 function motherPage(id){let m=mother(id),ks=kidsMom(id),cs=consMom(id);return `<button class="back" onclick="navTo('mothers')">← Terug naar moeders</button><div class="profile-grid"><div class="card profile"><h2>${m.n}</h2><p>${m.op||""}</p><div class="profile-actions"><button class="btn secondary">Bewerken</button><button class="btn secondary">Inactief maken</button></div></div><div class="card"><div class="side-title">Kinderen</div><div class="simple-list">${ks.map(k=>`<button class="simple-item" onclick="navTo('mother',${m.id})">${k.n}</button>`).join("")}<button class="btn primary" style="justify-self:start" onclick="openDrawer('kid',{mother:${id}})">Kind toevoegen</button></div></div></div><div class="panel"><h3>Contactpersonen</h3><div class="list">${cs.map(personRow).join("")}</div><div class="section-actions"><button class="btn primary" onclick="openDrawer('link',{mother:${id}})">Contactpersoon toevoegen</button></div></div>`}
-function kidsPage(){let q=st.kidQ.toLowerCase();let groups=db.mothers.filter(m=>m.a).sort((a,b)=>a.n.localeCompare(b.n,'nl')).map(m=>({m,k:kidsMom(m).sort((a,b)=>a.n.localeCompare(b.n,'nl'))})).filter(g=>g.k.length&&(!q||g.k.some(k=>k.n.toLowerCase().includes(q))));return `<div class="toolbar"><h2>Kinderen</h2></div><div class="filter" style="max-width:560px;margin-bottom:18px"><label>Zoeken op kind</label><input value="${esc(st.kidQ)}" oninput="st.kidQ=this.value;renderPage()" placeholder="Naam kind"></div><div class="kid-groups">${groups.map(g=>`<div class="family-card"><button class="mother" onclick="navTo('mother',${g.m.id})">${g.m.n}</button>${g.k.map(k=>`<button class="child" onclick="navTo('mother',${g.m.id})">${first(k.n)}</button>`).join("")}</div>`).join("")}</div>`}
+function kidsPage(){
+  let q=(st.kidQ||"").toLowerCase();
+  let groups=db.mothers
+    .filter(m=>m.a)
+    .sort((a,b)=>a.n.localeCompare(b.n,'nl'))
+    .map(m=>{
+      let children=db.kids.filter(k=>k.mo==m.id).sort((a,b)=>a.n.localeCompare(b.n,'nl'));
+      return {m:m,k:children};
+    })
+    .filter(g=>g.k.length>0)
+    .filter(g=>!q || g.k.some(k=>k.n.toLowerCase().includes(q)));
+  return `<div class="toolbar"><h2>Kinderen</h2></div>
+  <div class="filter" style="max-width:560px;margin-bottom:18px">
+    <label>Zoeken op kind</label>
+    <input value="${esc(st.kidQ||"")}" oninput="st.kidQ=this.value;renderPage()" placeholder="Naam kind">
+  </div>
+  <div class="kid-groups">
+    ${groups.map(g=>`<div class="family-card">
+      <button class="mother" onclick="navTo('mother',${g.m.id})">${g.m.n}</button>
+      ${g.k.map(k=>`<button class="child" onclick="navTo('mother',${g.m.id})">${first(k.n)}</button>`).join("")}
+    </div>`).join("")}
+  </div>`;
+}
+
 function contactsPage(){return `<div class="toolbar"><h2>Contactpersonen</h2></div><div class="filters"><div class="filter"><label>Zoeken op naam</label><input id="cName" oninput="renderContactResults()" placeholder="Naam contactpersoon"></div><div class="filter"><label>Type organisatie</label><select id="cType" onchange="updateOrgFilter();renderContactResults()"><option value="all">Alle types</option>${db.types.map(t=>`<option value="${t.id}">${t.n}</option>`).join("")}</select></div><div class="filter"><label>Organisatie</label><select id="cOrg" onchange="renderContactResults()"><option value="all">Alle organisaties</option>${db.orgs.filter(o=>consOrg(o.id).length).map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div><div id="contactInstruction" class="instruction">Voer een naam in of kies een type organisatie of organisatie om bestaande contactpersonen te tonen. Staat de contactpersoon er niet tussen? Kies dan 'Contactpersoon toevoegen'.</div><div id="contactResults" class="list"></div><div class="section-actions"><button class="btn primary" onclick="openDrawer('contact')">Contactpersoon toevoegen</button></div>`}
 function updateOrgFilter(){let t=document.getElementById("cType").value,s=document.getElementById("cOrg");s.innerHTML=`<option value="all">Alle organisaties</option>`+db.orgs.filter(o=>(t==="all"||o.t==t)&&consOrg(o.id).length).map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}
 function renderContactResults(){let q=(document.getElementById("cName")?.value||"").toLowerCase(),t=document.getElementById("cType")?.value||"all",o=document.getElementById("cOrg")?.value||"all",has=q||t!=="all"||o!=="all",res=has?db.contacts.filter(c=>{let oo=org(c.o);return(t==="all"||oo.t==t)&&(o==="all"||c.o==o)&&(!q||c.n.toLowerCase().includes(q))}):[];document.getElementById("contactInstruction").style.display=has?"none":"block";document.getElementById("contactResults").innerHTML=res.map(c=>`<div class="row"><div class="row-main"><strong>${c.n} | ${c.f||"Geen functie"}</strong><span>${type(org(c.o).t).n} | ${org(c.o).n}</span></div><div class="row-actions"><button class="link-edit">Bewerken</button><button class="link-delete">Verwijderen</button></div></div>`).join("")}
