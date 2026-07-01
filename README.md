@@ -1,11 +1,11 @@
 # Contacten 1.0
 
-Eerste officiële interfaceversie voor GitHub Pages.
+Wijziging:
+- De gemeentenlijst onder het linkermenu is verwijderd.
+- Verder blijft de interface hetzelfde.
 
 Upload naar GitHub:
 - index.html
 - style.css
 - app.js
 - README.md
-
-Volgende fase: Microsoft Lists-koppeling.
