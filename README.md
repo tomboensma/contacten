@@ -1,18 +1,11 @@
-# Contacten Het Twentse Geluk - Fase 4.4.2
+# Contacten Het Twentse Geluk - Fase 4.4.3
 
-Correcties t.o.v. 4.4.1:
+Kleine correctie t.o.v. 4.4.2:
 
-- Kinderenpagina gefixt:
-  - toont nu actieve moeders met kinderen eronder ingesprongen
-  - responsive blokken
-  - zoekveld bovenaan
-  - geen knop Kind toevoegen
+- Globale zoekfunctie heeft nu een echte overlay:
+  - achtergrond wordt donkerder
+  - zoekresultaten blijven helder erboven
+  - klikken buiten de resultaten sluit de zoekfunctie
+  - klikken op een menu-item sluit de zoekfunctie en wist het zoekveld
 
-- Testdata uitgebreid:
-  - Gemeente heeft nu meer dan 15 organisaties
-  - daardoor kun je testen dat de type-organisatiepagina automatisch overschakelt naar zoekveld/autocomplete
-
-Test:
-- Ga naar Kinderen: je zou Anne, Karin en Maria met kinderen moeten zien.
-- Ga naar Organisaties > Gemeente: je zou nu een zoekveld moeten zien.
-- Typ bijvoorbeeld "tu": Tubbergen komt naar voren.
+Verder niets gewijzigd.

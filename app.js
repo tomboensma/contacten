@@ -16,11 +16,51 @@ function consMom(id){return db.contacts.filter(c=>c.mo.includes(+id))}
 function kidsMom(id){return db.kids.filter(k=>k.mo==id)}
 function meta(c){let o=org(c.o),t=type(o.t);return `${t.n} | ${o.n} | ${c.f||""}`}
 function init(){app.innerHTML=`<div class="app"><aside class="sidebar"><div class="brand"><img src="./logo.png" onerror="this.style.display='none'"><div><div class="brand-title">Contacten</div><div class="brand-org">Het Twentse Geluk</div></div></div><div class="global-search"><input id="globalInput" oninput="globalSearch(this.value)" placeholder="Zoek overal..."></div><nav class="nav" id="nav"><button data-page="mothers" onclick="navTo('mothers')">Moeders</button><button data-page="kids" onclick="navTo('kids')">Kinderen</button><button data-page="contacts" onclick="navTo('contacts')">Contactpersonen</button><button data-page="orgs" onclick="navTo('orgs')">Organisaties</button></nav></aside><main class="main" id="main"></main></div><div id="globalHost"></div><div id="overlayHost"></div>`;renderPage()}
-function navTo(page,id=null){document.getElementById("globalInput").value="";document.getElementById("globalHost").innerHTML="";st={...st,page,id,motherQ:"",kidQ:"",drawer:null,modal:null};renderPage()}
+function navTo(page,id=null){
+  let input=document.getElementById("globalInput");
+  if(input) input.value="";
+  let host=document.getElementById("globalHost");
+  if(host) host.innerHTML="";
+  st={...st,page,id,motherQ:"",kidQ:"",drawer:null,modal:null};
+  renderPage();
+};renderPage()}
 function setActive(){document.querySelectorAll("#nav button").forEach(b=>{let p=b.dataset.page;b.classList.toggle("active",(p==="mothers"&&st.page==="mother")||(p==="contacts"&&st.page==="contact")||(p==="orgs"&&["type","org"].includes(st.page))||p===st.page)})}
 function renderPage(){setActive();let c="";if(st.page==="mothers")c=mothersPage();if(st.page==="mother")c=motherPage(st.id);if(st.page==="kids")c=kidsPage();if(st.page==="contacts")c=contactsPage();if(st.page==="contact")c=contactPage(st.id);if(st.page==="orgs")c=orgsPage();if(st.page==="type")c=typePage(st.id);if(st.page==="org")c=orgPage(st.id);document.getElementById("main").innerHTML=c;renderOverlay()}
-function globalSearch(value){let q=value.trim().toLowerCase(),host=document.getElementById("globalHost");if(q.length<2){host.innerHTML="";return}let contacts=db.contacts.filter(c=>[c.n,c.f,c.m,c.tel,c.e,meta(c)].some(x=>(x||"").toLowerCase().includes(q)));let orgs=db.orgs.filter(o=>[o.n,type(o.t).n].some(x=>x.toLowerCase().includes(q)));let moms=db.mothers.filter(m=>m.n.toLowerCase().includes(q));let kids=db.kids.filter(k=>k.n.toLowerCase().includes(q));function sec(title,items,html,morePage){if(!items.length)return "";let rest=items.length-5;return `<div class="global-section"><h4>${title} (${items.length})</h4>${items.slice(0,5).map(html).join("")}${rest>0?`<button class="global-more" onclick="navTo('${morePage}')">Nog ${rest} resultaten...</button>`:""}</div>`}let out=sec("Contactpersonen",contacts,c=>`<button class="global-item" onclick="navTo('contact',${c.id})">${c.n}<br><span class="muted">${meta(c)}</span></button>`,"contacts")+sec("Organisaties",orgs,o=>`<button class="global-item" onclick="navTo('org',${o.id})">${type(o.t).n} | ${o.n}</button>`,"orgs")+sec("Moeders",moms,m=>`<button class="global-item" onclick="navTo('mother',${m.id})">${m.n}</button>`,"mothers")+sec("Kinderen",kids,k=>`<button class="global-item" onclick="navTo('mother',${k.mo})">${k.n}<br><span class="muted">${mother(k.mo).n}</span></button>`,"kids");host.innerHTML=`<div class="search-backdrop" onclick="clearGlobalSearch()"></div><div class="global-results">${out||'<div class="muted">Geen resultaten gevonden.</div>'}</div>`}
-function clearGlobalSearch(){let i=document.getElementById('globalInput');if(i)i.value='';document.getElementById('globalHost').innerHTML=''}
+function globalSearch(value){
+  let q=value.trim().toLowerCase();
+  let host=document.getElementById("globalHost");
+  if(q.length<2){
+    host.innerHTML="";
+    return;
+  }
+
+  let contacts=db.contacts.filter(c=>[c.n,c.f,c.m,c.tel,c.e,meta(c)].some(x=>(x||"").toLowerCase().includes(q)));
+  let orgs=db.orgs.filter(o=>[o.n,type(o.t).n].some(x=>x.toLowerCase().includes(q)));
+  let moms=db.mothers.filter(m=>m.n.toLowerCase().includes(q));
+  let kids=db.kids.filter(k=>k.n.toLowerCase().includes(q));
+
+  function sec(title,items,html,morePage){
+    if(!items.length)return "";
+    let rest=items.length-5;
+    return `<div class="global-section"><h4>${title} (${items.length})</h4>${items.slice(0,5).map(html).join("")}${rest>0?`<button class="global-more" onclick="navTo('${morePage}')">Nog ${rest} resultaten...</button>`:""}</div>`;
+  }
+
+  let out=
+    sec("Contactpersonen",contacts,c=>`<button class="global-item" onclick="navTo('contact',${c.id})">${c.n}<br><span class="muted">${meta(c)}</span></button>`,"contacts")+
+    sec("Organisaties",orgs,o=>`<button class="global-item" onclick="navTo('org',${o.id})">${type(o.t).n} | ${o.n}</button>`,"orgs")+
+    sec("Moeders",moms,m=>`<button class="global-item" onclick="navTo('mother',${m.id})">${m.n}</button>`,"mothers")+
+    sec("Kinderen",kids,k=>`<button class="global-item" onclick="navTo('mother',${k.mo})">${k.n}<br><span class="muted">${mother(k.mo).n}</span></button>`,"kids");
+
+  host.innerHTML=`<div class="search-backdrop" onclick="clearGlobalSearch()"></div><div class="global-results">${out||'<div class="muted">Geen resultaten gevonden.</div>'}</div>`;
+}
+
+function clearGlobalSearch(){
+  let input=document.getElementById("globalInput");
+  if(input) input.value="";
+  let host=document.getElementById("globalHost");
+  if(host) host.innerHTML="";
+}
+
 function mothersPage(){let q=st.motherQ.toLowerCase(),rows=db.mothers.filter(m=>m.a&&(!q||m.n.toLowerCase().includes(q)));return `<div class="toolbar"><h2>Moeders</h2></div><div class="filter" style="max-width:560px;margin-bottom:18px"><label>Zoeken</label><input value="${esc(st.motherQ)}" oninput="st.motherQ=this.value;renderPage()" placeholder="Zoek moeder..."></div><div class="grid-cards">${rows.map(m=>`<button class="type-card" onclick="navTo('mother',${m.id})"><strong>${m.n}</strong><span>Actief</span></button>`).join("")}</div><div class="section-actions"><button class="btn primary" onclick="openDrawer('mother')">Nieuwe moeder</button></div>`}
 function motherPage(id){let m=mother(id),ks=kidsMom(id),cs=consMom(id);return `<button class="back" onclick="navTo('mothers')">← Terug naar moeders</button><div class="profile-grid"><div class="card profile"><h2>${m.n}</h2><p>${m.op||""}</p><div class="profile-actions"><button class="btn secondary">Bewerken</button><button class="btn secondary">Inactief maken</button></div></div><div class="card"><div class="side-title">Kinderen</div><div class="simple-list">${ks.map(k=>`<button class="simple-item" onclick="navTo('mother',${m.id})">${k.n}</button>`).join("")}<button class="btn primary" style="justify-self:start" onclick="openDrawer('kid',{mother:${id}})">Kind toevoegen</button></div></div></div><div class="panel"><h3>Contactpersonen</h3><div class="list">${cs.map(personRow).join("")}</div><div class="section-actions"><button class="btn primary" onclick="openDrawer('link',{mother:${id}})">Contactpersoon toevoegen</button></div></div>`}
 function kidsPage(){
