@@ -97,3 +97,16 @@ button{cursor:pointer}
   .type-grid,.kid-groups{grid-template-columns:1fr}
   .brand img{width:48px;height:48px}
 }
+
+
+/* Fase 4.4 */
+.global-results{position:fixed;left:352px;top:28px;width:min(560px,calc(100vw - 380px));max-height:calc(100vh - 56px);overflow:auto;background:#fff;border:1px solid var(--border);border-radius:22px;padding:18px;box-shadow:var(--shadow);z-index:30}
+.global-section{margin-bottom:16px}.global-section h4{margin:0 0 8px;color:var(--purple-dark)}
+.global-item{display:block;width:100%;border:0;background:#fff;text-align:left;border-radius:12px;padding:9px 10px}
+.global-item:hover{background:var(--purple-soft)}
+.global-more{border:0;background:transparent;color:var(--purple);font-weight:700;padding:8px 10px}
+.instruction{background:#fff;border:1px dashed var(--border);border-radius:18px;padding:18px;color:var(--muted);margin-bottom:14px;max-width:980px}
+.row-actions{display:flex;gap:12px;align-items:center;justify-content:flex-end;white-space:nowrap}
+.link-edit{border:0;background:transparent;color:var(--purple);font-weight:700;padding:0}
+.link-delete{border:0;background:transparent;color:var(--danger);font-weight:700;padding:0}
+@media(max-width:920px){.global-results{left:16px;right:16px;top:120px;width:auto;max-height:70vh}.row-actions{justify-content:flex-start}}
