@@ -1,15 +1,13 @@
-# Contacten Het Twentse Geluk - Fase 4.4 herstel
+# Contacten Het Twentse Geluk - Fase 4.4 fixed
 
-Schone herstelversie van 4.4:
+Schone vaste 4.4:
 - Geen Home.
-- Start direct op Moeders.
+- Start op Moeders.
 - Wereldwijd zoeken begint pas vanaf 2 letters.
-- Cursor blijft staan tijdens wereldwijd zoeken.
+- Cursor blijft staan in wereldwijd zoeken.
+- Moeders in responsive blokken, Nieuwe moeder onderaan.
+- Kinderen in responsive gezinsblokken met zoekveld.
 - Contactpersonen start leeg.
-- Organisaties tonen alle typen, ook 0 organisaties.
-- Knoppen staan onder de lijsten.
-- Moeders en Kinderen staan in responsive blokken.
-- Kinderenpagina heeft zoekveld en geen Kind toevoegen.
-- Organisatie/contactpersonen compact met Bewerken | Verwijderen.
-
-Let op: testdata verdwijnt na verversen.
+- Organisaties tonen alle typen, met knop onderaan.
+- Type-organisatiepagina toont organisaties in blokken met Nieuwe organisatie onderaan.
+- Organisatiedetail zonder Nieuwe contactpersoon rechtsboven.
