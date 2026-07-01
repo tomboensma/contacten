@@ -1,5 +1,5 @@
 
-const data={
+let data={
   typeOrganisaties:[
     {id:1,naam:"Gemeente"},
     {id:2,naam:"Jeugdbescherming"},
@@ -10,14 +10,14 @@ const data={
     {id:7,naam:"Zorgaanbieder"}
   ],
   organisaties:[
-    {id:1,typeId:1,naam:"Almelo",regio:"Samen14",actief:true},
-    {id:2,typeId:1,naam:"Alphen aan den Rijn",regio:"Holland Rijnland",actief:true},
-    {id:3,typeId:1,naam:"Amersfoort",regio:"Regio Amersfoort",actief:true},
-    {id:4,typeId:2,naam:"JBOV",regio:"Overijssel",actief:true},
-    {id:5,typeId:2,naam:"JBB",regio:"Brabant",actief:true},
-    {id:6,typeId:2,naam:"Leger des Heils",regio:"Landelijk",actief:true},
-    {id:7,typeId:3,naam:"Veilig Thuis Twente",regio:"Twente",actief:true},
-    {id:8,typeId:4,naam:"GGD Twente",regio:"Twente",actief:true}
+    {id:1,typeId:1,naam:"Almelo",regio:"Samen14"},
+    {id:2,typeId:1,naam:"Alphen aan den Rijn",regio:"Holland Rijnland"},
+    {id:3,typeId:1,naam:"Amersfoort",regio:"Regio Amersfoort"},
+    {id:4,typeId:2,naam:"JBOV",regio:"Overijssel"},
+    {id:5,typeId:2,naam:"JBB",regio:"Brabant"},
+    {id:6,typeId:2,naam:"Leger des Heils",regio:"Landelijk"},
+    {id:7,typeId:3,naam:"Veilig Thuis Twente",regio:"Twente"},
+    {id:8,typeId:4,naam:"GGD Twente",regio:"Twente"}
   ],
   contactpersonen:[
     {id:1,organisatieId:1,naam:"Jan Jansen",functie:"Jeugdconsulent",mobiel:"06-12345678",vast:"0546-123456",email:"jan.jansen@almelo.nl",opmerkingen:"Werkt ma-do",moeders:[1]},
@@ -38,23 +38,52 @@ const data={
   ]
 };
 
-let state={query:"",screen:"home",id:null,inlineSearch:"",showInactive:false};
+let state={query:"",screen:"home",id:null,inlineSearch:"",showInactive:false,drawer:null};
 const app=document.getElementById("app");
 
-function typeOrg(id){return data.typeOrganisaties.find(t=>t.id===id)}
-function organisatie(id){return data.organisaties.find(o=>o.id===id)}
-function contact(id){return data.contactpersonen.find(c=>c.id===id)}
-function moeder(id){return data.moeders.find(m=>m.id===id)}
+function typeOrg(id){return data.typeOrganisaties.find(t=>t.id===Number(id))}
+function organisatie(id){return data.organisaties.find(o=>o.id===Number(id))}
+function contact(id){return data.contactpersonen.find(c=>c.id===Number(id))}
+function moeder(id){return data.moeders.find(m=>m.id===Number(id))}
 function contactsForMother(id){return data.contactpersonen.filter(c=>c.moeders.includes(id))}
 function countContactsOrg(oid){return data.contactpersonen.filter(c=>c.organisatieId===oid).length}
 function countOrgsByType(tid){return data.organisaties.filter(o=>o.typeId===tid && countContactsOrg(o.id)>0).length}
 function activeMothers(){return data.moeders.filter(m=>m.actief)}
 function activeChildren(){const ids=activeMothers().map(m=>m.id);return data.kinderen.filter(k=>ids.includes(k.moederId))}
 
-function setScreen(s,id=null){state.screen=s;state.id=id;state.query="";state.inlineSearch="";render()}
+function setScreen(s,id=null){state.screen=s;state.id=id;state.query="";state.inlineSearch="";state.drawer=null;render()}
 function setQuery(v){state.query=v;render()}
 function setInlineSearch(v){state.inlineSearch=v;render()}
 function toggleInactive(){state.showInactive=!state.showInactive;render()}
+function openDrawer(type,id=null){state.drawer={type,id};render()}
+function closeDrawer(){state.drawer=null;render()}
+
+function nextId(arr){return Math.max(0,...arr.map(x=>x.id))+1}
+
+function saveTypeOrganisatie(){
+  const id=document.getElementById("typeId").value;
+  const naam=document.getElementById("typeNaam").value.trim();
+  if(!naam)return alert("Vul een naam in.");
+  if(id){typeOrg(id).naam=naam}else{data.typeOrganisaties.push({id:nextId(data.typeOrganisaties),naam})}
+  closeDrawer()
+}
+function saveOrganisatie(){
+  const id=document.getElementById("orgId").value;
+  const typeId=Number(document.getElementById("orgType").value);
+  const naam=document.getElementById("orgNaam").value.trim();
+  const regio=document.getElementById("orgRegio").value.trim();
+  if(!naam)return alert("Vul een naam organisatie in.");
+  if(id){Object.assign(organisatie(id),{typeId,naam,regio})}else{data.organisaties.push({id:nextId(data.organisaties),typeId,naam,regio})}
+  closeDrawer()
+}
+function deleteType(id){
+  if(data.organisaties.some(o=>o.typeId===id)) return alert("Dit type organisatie kan niet worden verwijderd, omdat er organisaties onder hangen.");
+  if(confirm("Type organisatie verwijderen?")){data.typeOrganisaties=data.typeOrganisaties.filter(t=>t.id!==id);render()}
+}
+function deleteOrganisatie(id){
+  if(data.contactpersonen.some(c=>c.organisatieId===id)) return alert("Deze organisatie kan niet worden verwijderd, omdat er contactpersonen aan gekoppeld zijn.");
+  if(confirm("Organisatie verwijderen?")){data.organisaties=data.organisaties.filter(o=>o.id!==id);render()}
+}
 
 function shell(content){
   return `<div class="app"><aside class="sidebar">
@@ -62,12 +91,12 @@ function shell(content){
     <div class="search"><input value="${escapeHtml(state.query)}" oninput="setQuery(this.value)" placeholder="Zoeken..." /></div>
     <nav class="nav">
       <button class="${state.screen==='home'?'active':''}" onclick="setScreen('home')">Home</button>
-      <button class="${state.screen==='organisaties'||state.screen==='typeOrganisatie'||state.screen==='organisatie'?'active':''}" onclick="setScreen('organisaties')">Organisaties</button>
-      <button class="${state.screen==='contactpersonen'||state.screen==='contact'?'active':''}" onclick="setScreen('contactpersonen')">Contactpersonen</button>
-      <button class="${state.screen==='moeders'||state.screen==='moeder'?'active':''}" onclick="setScreen('moeders')">Moeders</button>
-      <button class="${state.screen==='kinderen'||state.screen==='kind'?'active':''}" onclick="setScreen('kinderen')">Kinderen</button>
+      <button class="${['organisaties','typeOrganisatie','organisatie'].includes(state.screen)?'active':''}" onclick="setScreen('organisaties')">Organisaties</button>
+      <button class="${['contactpersonen','contact'].includes(state.screen)?'active':''}" onclick="setScreen('contactpersonen')">Contactpersonen</button>
+      <button class="${['moeders','moeder'].includes(state.screen)?'active':''}" onclick="setScreen('moeders')">Moeders</button>
+      <button class="${['kinderen','kind'].includes(state.screen)?'active':''}" onclick="setScreen('kinderen')">Kinderen</button>
     </nav>
-  </aside><main class="main">${content}</main></div>`
+  </aside><main class="main">${content}</main></div>${state.drawer?drawer():''}`
 }
 
 function home(){
@@ -76,21 +105,21 @@ function home(){
     <button class="home-action">Nieuwe moeder</button>
     <button class="home-action">Nieuw kind</button>
     <button class="home-action">Nieuw contactpersoon</button>
-    <button class="home-action">Nieuwe organisatie</button>
+    <button class="home-action" onclick="openDrawer('organisatie')">Nieuwe organisatie</button>
   </div>`
 }
 
 function organisatiesScreen(){
   const rows=data.typeOrganisaties.filter(t=>countOrgsByType(t.id)>0);
-  return `<div class="toolbar"><h2>Organisaties</h2><div class="toolbar-actions"><button class="btn btn-primary">Nieuwe organisatie</button><button class="btn btn-secondary">Nieuw type organisatie</button></div></div>
-  <div class="type-grid">${rows.map(t=>`<button class="type-card" onclick="setScreen('typeOrganisatie',${t.id})"><strong>${t.naam}</strong><span>${countOrgsByType(t.id)} organisaties</span></button>`).join("")}</div>`
+  return `<div class="toolbar"><h2>Organisaties</h2><div class="toolbar-actions"><button class="btn btn-primary" onclick="openDrawer('organisatie')">Nieuwe organisatie</button><button class="btn btn-secondary" onclick="openDrawer('typeOrganisatie')">Nieuw type organisatie</button></div></div>
+  <div class="type-grid">${rows.map(t=>`<div class="type-card"><button style="border:0;background:transparent;text-align:left;width:100%;padding:0" onclick="setScreen('typeOrganisatie',${t.id})"><strong>${t.naam}</strong><span>${countOrgsByType(t.id)} organisaties</span></button><div class="card-actions"><button onclick="openDrawer('typeOrganisatie',${t.id})">Bewerken</button><button onclick="deleteType(${t.id})">Verwijderen</button></div></div>`).join("")}</div>`
 }
 
 function typeOrganisatieScreen(id){
   const t=typeOrg(id),q=state.inlineSearch.toLowerCase();
   const rows=data.organisaties.filter(o=>o.typeId===id && countContactsOrg(o.id)>0).filter(o=>!q||o.naam.toLowerCase().includes(q));
   return `<button class="back" onclick="setScreen('organisaties')">← Terug naar organisaties</button>
-  <div class="toolbar"><h2>${t.naam}</h2><button class="btn btn-primary">Nieuwe contactpersoon</button></div>
+  <div class="toolbar"><h2>${t.naam}</h2><div class="toolbar-actions"><button class="btn btn-secondary" onclick="openDrawer('typeOrganisatie',${t.id})">Type wijzigen</button><button class="btn btn-primary">Nieuwe contactpersoon</button></div></div>
   <div class="inline-search"><input value="${escapeHtml(state.inlineSearch)}" oninput="setInlineSearch(this.value)" placeholder="Zoek organisatie..." /></div>
   <div class="cards">${rows.map(o=>`<button class="compact-row" onclick="setScreen('organisatie',${o.id})"><div><strong>${o.naam}</strong></div><div><span>${countContactsOrg(o.id)} ${countContactsOrg(o.id)===1?"contactpersoon":"contactpersonen"}</span></div><div class="chev">›</div></button>`).join("")||`<div class="empty">Geen organisaties gevonden.</div>`}</div>`
 }
@@ -99,7 +128,7 @@ function organisatieScreen(id){
   const o=organisatie(id),t=typeOrg(o.typeId),cs=data.contactpersonen.filter(c=>c.organisatieId===id);
   return `<button class="back" onclick="setScreen('typeOrganisatie',${o.typeId})">← Terug naar ${t.naam}</button>
   <div class="hero"><h2>${o.naam}</h2><p>Type organisatie: <strong>${t.naam}</strong>${o.regio?`<br>Regio: <strong>${o.regio}</strong>`:""}</p></div>
-  <div class="toolbar"><h2>Contactpersonen</h2><button class="btn btn-primary">Nieuwe contactpersoon</button></div>
+  <div class="toolbar"><h2>Contactpersonen</h2><div class="toolbar-actions"><button class="btn btn-secondary" onclick="openDrawer('organisatie',${o.id})">Organisatie wijzigen</button><button class="btn btn-primary">Nieuwe contactpersoon</button></div></div>
   <div class="cards">${cs.map(contactRow).join("")||`<div class="empty">Geen contactpersonen gevonden.</div>`}</div>`
 }
 
@@ -114,7 +143,10 @@ function contactpersonenScreen(){
   <div class="cards">${q?(results.map(contactRow).join("")||`<div class="empty">Geen contactpersonen gevonden.</div>`):`<div class="empty">Typ om contactpersonen te zoeken.</div>`}</div>`
 }
 
-function contactRow(c){return `<button class="compact-row" onclick="setScreen('contact',${c.id})"><div><strong>${c.naam}</strong></div><div><span>${c.functie||"Geen functie"}</span></div><div class="chev">›</div></button>`}
+function contactRow(c){
+  const o=organisatie(c.organisatieId),t=typeOrg(o?.typeId);
+  return `<button class="compact-row" onclick="setScreen('contact',${c.id})"><div><strong>${c.naam}</strong></div><div><span>${t?.naam||""} | ${o?.naam||""} | ${c.functie||""}</span></div><div class="chev">›</div></button>`
+}
 
 function contactScreen(id){
   const c=contact(id),o=organisatie(c.organisatieId),t=typeOrg(o.typeId),ms=data.moeders.filter(m=>c.moeders.includes(m.id));
@@ -166,6 +198,28 @@ function searchScreen(){
   ${searchGroup("Contactpersonen",cs.map(contactRow))}
   ${searchGroup("Moeders",ms.map(m=>`<button class="simple-item" onclick="setScreen('moeder',${m.id})">${m.naam}</button>`))}
   ${searchGroup("Kinderen",ks.map(k=>`<button class="simple-item" onclick="setScreen('kind',${k.id})">${k.naam}</button>`))}`
+}
+
+function drawer(){
+  const d=state.drawer;
+  if(d.type==="typeOrganisatie"){
+    const item=d.id?typeOrg(d.id):{id:"",naam:""};
+    return `<div class="drawer-backdrop"><aside class="drawer"><h2>${d.id?"Type organisatie wijzigen":"Nieuw type organisatie"}</h2>
+      <input type="hidden" id="typeId" value="${item.id}">
+      <div class="form-group"><label>Naam</label><input id="typeNaam" value="${escapeHtml(item.naam)}" autofocus></div>
+      <div class="form-actions"><button class="btn btn-secondary" onclick="closeDrawer()">Annuleren</button><button class="btn btn-primary" onclick="saveTypeOrganisatie()">Opslaan</button></div>
+    </aside></div>`;
+  }
+  if(d.type==="organisatie"){
+    const item=d.id?organisatie(d.id):{id:"",typeId:data.typeOrganisaties[0]?.id,naam:"",regio:""};
+    return `<div class="drawer-backdrop"><aside class="drawer"><h2>${d.id?"Organisatie wijzigen":"Nieuwe organisatie"}</h2>
+      <input type="hidden" id="orgId" value="${item.id}">
+      <div class="form-group"><label>Type organisatie</label><select id="orgType">${data.typeOrganisaties.map(t=>`<option value="${t.id}" ${t.id===item.typeId?"selected":""}>${t.naam}</option>`).join("")}</select></div>
+      <div class="form-group"><label>Naam organisatie</label><input id="orgNaam" value="${escapeHtml(item.naam)}"></div>
+      <div class="form-group"><label>Regio</label><input id="orgRegio" value="${escapeHtml(item.regio||"")}"></div>
+      <div class="form-actions"><button class="btn btn-secondary" onclick="closeDrawer()">Annuleren</button><button class="btn btn-primary" onclick="saveOrganisatie()">Opslaan</button></div>
+    </aside></div>`;
+  }
 }
 
 function searchGroup(t,rows){return `<section class="panel"><h3>${t}</h3><div class="cards">${rows.length?rows.join(""):`<p class="muted">Geen resultaten.</p>`}</div></section>`}

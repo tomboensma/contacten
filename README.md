@@ -1,16 +1,17 @@
-# Contacten 2.0
+# Contacten 2.1
 
-Nieuwe structuur:
-- Gemeenten is vervangen door Organisaties.
-- Organisaties zijn ingedeeld op Type organisatie.
-- Voorbeelden:
-  - Type organisatie: Gemeente → Organisatie: Almelo
-  - Type organisatie: Jeugdbescherming → Organisatie: JBOV
-  - Type organisatie: Jeugdbescherming → Organisatie: Leger des Heils
-  - Type organisatie: Veilig Thuis → Organisatie: Veilig Thuis Twente
-- Contactpersonen verwijzen nu naar Organisatie.
-- Contactpersoondetail toont Type organisatie en Organisatie.
-- Moeders/kinderen blijven met actieve moeders werken.
+Nieuw in 2.1:
+- Rechter zijpaneel voor invoer.
+- Nieuw type organisatie.
+- Type organisatie wijzigen.
+- Nieuwe organisatie.
+- Organisatie wijzigen.
+- Verwijderen van type organisatie alleen als er geen organisaties aan hangen.
+- Verwijderen van organisatie alleen als er geen contactpersonen aan hangen.
+
+Let op:
+Dit is nog testdata in de browser. Na verversen zijn testwijzigingen weer weg.
+De volgende stap is koppeling met Microsoft Lists.
 
 Upload naar GitHub:
 - index.html
