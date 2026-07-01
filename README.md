@@ -1,23 +1,29 @@
-# Contacten Het Twentse Geluk - Fase 4.1
+# Contacten Het Twentse Geluk - Fase 4.2
 
-Deze versie bouwt de eerste werkende Fase 4-basis:
+Nieuw/gecorrigeerd in deze versie:
 
-- Contactpersonenpagina met live filters: zoeken, type organisatie en organisatie.
-- Organisatie-autocomplete in het contactpersoonformulier.
-- Nieuwe moeder.
-- Nieuw kind direct vanaf de moederpagina.
-- Contactpersoon toevoegen vanaf moederpagina:
-  - type organisatie kiezen
-  - organisatie kiezen
-  - bekende contactpersonen van die organisatie tonen
-  - bestaande koppelen of nieuwe contactpersoon maken
-- Nieuwe organisatie via pop-up.
-- Nieuw type organisatie via pop-up.
-- Directe update na opslaan.
-- Duplicaatcontrole:
-  - type organisatie blokkeert dubbele naam
-  - organisatie blokkeert dubbele naam binnen hetzelfde type
-  - contactpersoon waarschuwt bij naam+organisatie, mobiel of e-mail
+- Contactpersonen:
+  - zoekbalk zoekt alleen op naam
+  - cursor blijft staan tijdens typen
+  - bij openen zijn zoekveld en filters leeg
+  - filter op type organisatie
+  - filter op organisatie
+  - bij Gemeente + Almelo zie je direct alle contactpersonen van Almelo
+
+- Kinderen:
+  - gegroepeerd per actieve moeder
+  - moeders alfabetisch op voornaam
+  - kinderen ingesprongen onder de moeder
+  - klik op kind opent de moederpagina
+  - kinderenpagina is alleen bedoeld als overzicht
+
+- Moederpagina:
+  - Nieuw kind is nu een paarse knop
+
+- Organisaties:
+  - compactere, responsive kaarten
+  - op groot scherm meerdere naast elkaar
+  - op mobiel onder elkaar
 
 Let op:
 Dit is nog testdata in de browser. Na verversen zijn testwijzigingen weg.
